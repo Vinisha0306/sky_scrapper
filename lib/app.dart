@@ -10,6 +10,9 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      theme: ThemeData(
+        colorSchemeSeed: Colors.blue.shade800,
+      ),
       darkTheme: ThemeData.dark(),
       themeMode: Provider.of<ThemeController>(context).isdark
           ? ThemeMode.dark

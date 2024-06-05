@@ -1,4 +1,5 @@
 import 'package:provider/provider.dart';
+import 'package:sky_scrapper/controller/PinController.dart';
 import 'package:sky_scrapper/controller/api_controller.dart';
 import 'package:sky_scrapper/controller/cityController.dart';
 import 'package:sky_scrapper/controller/themeController.dart';
@@ -21,6 +22,9 @@ void main() {
         ),
         ChangeNotifierProvider(
           create: (context) => searchMethodController(),
+        ),
+        ChangeNotifierProvider(
+          create: (context) => PinController(),
         ),
       ],
       child: const MyApp(),

@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:logger/logger.dart';
 import 'package:sky_scrapper/modal/api_modal.dart';
 import 'package:http/http.dart' as http;
-
 import '../modal/cityModal.dart';
 
 class ApiCalling {

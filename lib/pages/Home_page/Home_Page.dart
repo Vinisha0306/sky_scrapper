@@ -1,13 +1,5 @@
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:sky_scrapper/controller/api_controller.dart';
-import 'package:sky_scrapper/controller/themeController.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:sky_scrapper/headers.dart';
-import 'package:sky_scrapper/utils/app_route.dart';
-import '../../controller/cityController.dart';
-import '../../controller/serachController.dart';
-import '../../modal/cityModal.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,20 +8,11 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  // bool connecitivity = false;
-  //
-  // Future<void> CheckConnectivity() async {
-  //   List<ConnectivityResult> connectivityResult =
-  //       await Connectivity().checkConnectivity();
-  //
-  //   if (connectivityResult == ConnectivityResult.mobile) {
-  //     connecitivity = true;
-  //   }
-  // }
+List<City> pinCitys = [];
+String city = 'all';
+dynamic searchCity = 'all';
 
-  String city = 'all';
-  dynamic searchCity = 'all';
+class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     // CheckConnectivity();
@@ -46,6 +29,14 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             onPressed: () {
+              Navigator.pushNamed(context, AppRoutes.pinPage);
+            },
+            icon: const Icon(
+              CupertinoIcons.pin_fill,
+            ),
+          ),
+          IconButton(
+            onPressed: () {
               Provider.of<searchMethodController>(context, listen: false)
                   .Changesearch();
             },
@@ -58,9 +49,13 @@ class _HomePageState extends State<HomePage> {
               Provider.of<ThemeController>(context, listen: false)
                   .ChangeTheme();
             },
-            icon: const Icon(
-              Icons.sunny,
-            ),
+            icon: Provider.of<ThemeController>(context).isdark
+                ? const Icon(
+                    Icons.sunny,
+                  )
+                : const Icon(
+                    CupertinoIcons.moon_fill,
+                  ),
           ),
         ],
       ),
@@ -102,22 +97,61 @@ class _HomePageState extends State<HomePage> {
                     child: searchCity == 'all'
                         ? ListView.builder(
                             itemCount: listnable.allCity.length,
-                            itemBuilder: (context, index) => Card(
-                              child: GestureDetector(
-                                onTap: () {
-                                  city = listnable.allCity[index].name;
-                                  Provider.of<ApiController>(context,
-                                          listen: false)
-                                      .loadData(city: city);
-                                  Navigator.of(context)
-                                      .pushNamed(AppRoutes.detailPage)
-                                      .then((value) => searchCity = 'all');
-                                },
-                                child: Container(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Text(
-                                    listnable.allCity[index].name,
+                            itemBuilder: (context, index) => GestureDetector(
+                              onTap: () {
+                                city = listnable.allCity[index].name;
+                                Provider.of<ApiController>(context,
+                                        listen: false)
+                                    .loadData(city: city);
+                                Navigator.of(context)
+                                    .pushNamed(AppRoutes.detailPage)
+                                    .then((value) => searchCity = 'all');
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.all(10),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  image: const DecorationImage(
+                                    image: NetworkImage(
+                                      'https://wallpapergod.com/images/hd/dark-blue-aesthetic-1440X2960-wallpaper-77c8ozje67p3mr7l.jpeg',
+                                    ),
+                                    fit: BoxFit.cover,
                                   ),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      listnable.allCity[index].name,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      onPressed: () {
+                                        pinCitys.contains(
+                                                listnable.allCity[index])
+                                            ? pinCitys.remove(
+                                                listnable.allCity[index],
+                                              )
+                                            : pinCitys
+                                                .add(listnable.allCity[index]);
+                                        setState(() {});
+                                      },
+                                      icon: pinCitys.contains(
+                                              listnable.allCity[index])
+                                          ? const Icon(
+                                              CupertinoIcons.pin_fill,
+                                              color: Colors.white,
+                                            )
+                                          : const Icon(
+                                              CupertinoIcons.pin,
+                                              color: Colors.white,
+                                            ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
@@ -125,30 +159,64 @@ class _HomePageState extends State<HomePage> {
                         : Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Card(
-                                child: GestureDetector(
-                                  onTap: () {
-                                    city = searchCity.name;
-                                    Provider.of<ApiController>(context,
-                                            listen: false)
-                                        .loadData(city: city);
-                                    Navigator.of(context)
-                                        .pushNamed(AppRoutes.detailPage)
-                                        .then(
-                                      (value) {
-                                        searchCity = 'all';
-                                        Provider.of<searchMethodController>(
-                                                context,
-                                                listen: false)
-                                            .Changesearch();
-                                      },
-                                    );
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.all(10),
-                                    child: Text(
-                                      searchCity.name,
+                              GestureDetector(
+                                onTap: () {
+                                  city = searchCity.name;
+                                  Provider.of<ApiController>(context,
+                                          listen: false)
+                                      .loadData(city: city);
+                                  Navigator.of(context)
+                                      .pushNamed(AppRoutes.detailPage)
+                                      .then(
+                                    (value) {
+                                      searchCity = 'all';
+                                      Provider.of<searchMethodController>(
+                                              context,
+                                              listen: false)
+                                          .Changesearch();
+                                    },
+                                  );
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(10),
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: const DecorationImage(
+                                      image: NetworkImage(
+                                        'https://wallpapergod.com/images/hd/dark-blue-aesthetic-1440X2960-wallpaper-77c8ozje67p3mr7l.jpeg',
+                                      ),
+                                      fit: BoxFit.cover,
                                     ),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        searchCity.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      IconButton(
+                                        onPressed: () {
+                                          pinCitys.contains(searchCity)
+                                              ? pinCitys.remove(searchCity)
+                                              : pinCitys.add(searchCity);
+                                          setState(() {});
+                                        },
+                                        icon: pinCitys.contains(searchCity)
+                                            ? const Icon(
+                                                CupertinoIcons.pin_fill,
+                                                color: Colors.white,
+                                              )
+                                            : const Icon(
+                                                CupertinoIcons.pin,
+                                                color: Colors.white,
+                                              ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               )
